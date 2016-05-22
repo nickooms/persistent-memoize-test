@@ -1,28 +1,28 @@
-import request from 'request';
-import { parse } from '../parse';
+// import request from 'request';
+// import { parse } from '../parse';
+import { doReq } from '../req';
 
-const method = 'POST';
-const url = 'http://crab.agiv.be/Examples/Home/ExecOperation';
-
-const getParams = params => Object.keys(params).map(key => ({ Name: key, Value: params[key] }));
-
-const req = (operation, parameters) => {
-  const parametersJson = JSON.stringify(getParams(parameters));
-  const form = { operation, parametersJson };
-  return { method, url, form };
-};
+/* const doReq = (operation, parameters) => new Promise((resolve, reject) => {
+  request(req(operation, parameters), (error, response, body) => {
+    if (error) reject(new Error('request failed:', error));
+    resolve(parse(body));
+  });
+});*/
 
 describe('WS-CRAB', () => {
   beforeEach(() => {});
 
   describe('Talen', () => {
     it('should get 3 Talen', done => {
-      request(req('ListTalen', { SorteerVeld: 0 }), (error, response, body) => {
+      doReq('ListTalen', { SorteerVeld: 0 })
+      .then(talen => expect(talen.length).toEqual(3))
+      .then(done);
+      /* request(req('ListTalen', { SorteerVeld: 0 }), (error, response, body) => {
         if (error) throw new Error('POST failed:', error);
         const talen = parse(body);
         expect(talen.length).toEqual(3);
         return done();
-      });
+      });*/
     });
   });
 });
