@@ -15,12 +15,14 @@ const req = (operation, parameters) => {
 describe('WS-CRAB', () => {
   beforeEach(() => {});
 
-  it('should get 3 Talen', done => {
-    request(req('ListTalen', { SorteerVeld: 0 }), (error, response, body) => {
-      if (error) throw new Error('POST failed:', error);
-      const talen = parse(body);
-      expect(talen.length).toEqual(3);
-      return done();
+  describe('Talen', () => {
+    it('should get 3 Talen', done => {
+      request(req('ListTalen', { SorteerVeld: 0 }), (error, response, body) => {
+        if (error) throw new Error('POST failed:', error);
+        const talen = parse(body);
+        expect(talen.length).toEqual(3);
+        return done();
+      });
     });
   });
 });
