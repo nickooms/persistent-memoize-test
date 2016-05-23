@@ -1,9 +1,6 @@
-import initMemoize from 'persistent-memoize';
-import initBlobStore from 'fs-blob-store';
 import { doReq } from './req';
 import Straten from './Straten';
-
-const memoize = initMemoize(initBlobStore({ path: './data' }));
+import { memoize } from './util';
 
 export default class Straat {
   static map = x => ({
@@ -18,12 +15,12 @@ export default class Straat {
     (!filter.taalCode || Straat.taalCode(filter.taalCode)(x));
   static find = ({ gemeenteId, naam, taalCode, SorteerVeld = 0 } = {}) =>
     Straat.getListByGemeenteId(gemeenteId, SorteerVeld)
-    // doReq('ListStraatnamenByGemeenteId', { GemeenteId: gemeenteId, SorteerVeld })
     .then(list => list.map(Straat.map))
     .then(Straten.filter(Straat.filter({ naam, taalCode })))
     .then(list => list[0]);
 }
 
-const listStratenByGemeenteId = (gemeenteId, SorteerVeld) =>
-  doReq('ListStraatnamenByGemeenteId', { GemeenteId: gemeenteId, SorteerVeld });
-Straat.getListByGemeenteId = memoize(listStratenByGemeenteId, 'listStratenByGemeenteId');
+const name = 'ListStraatnamenByGemeenteId';
+const list = (gemeenteId, SorteerVeld) =>
+  doReq(name, { GemeenteId: gemeenteId, SorteerVeld });
+Straat.getListByGemeenteId = memoize(list, name);

@@ -1,9 +1,6 @@
-import initMemoize from 'persistent-memoize';
-import initBlobStore from 'fs-blob-store';
 import { doReq } from './req';
 import Talen from './Talen';
-
-const memoize = initMemoize(initBlobStore({ path: './data' }));
+import { memoize } from './util';
 
 export default class Taal {
   static map = x => ({
@@ -20,11 +17,11 @@ export default class Taal {
     (!filter.definitie || Taal.definitie(filter.definitie)(x));
   static find = ({ code, naam, definitie, SorteerVeld = 0 } = {}) =>
     Taal.getList(SorteerVeld)
-    // doReq('ListTalen', { SorteerVeld })
     .then(list => list.map(Taal.map))
     .then(Talen.filter(Taal.filter({ code, naam, definitie })))
     .then(list => list[0]);
 }
 
-const listTalen = SorteerVeld => doReq('ListTalen', { SorteerVeld });
-Taal.getList = memoize(listTalen, 'listTalen');
+const name = 'ListTalen';
+const list = SorteerVeld => doReq(name, { SorteerVeld });
+Taal.getList = memoize(list, name);
