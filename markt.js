@@ -4,6 +4,7 @@ import Gemeente from './Gemeente';
 import Straat from './Straat';
 import Huisnummer from './Huisnummer';
 import Gebouw from './Gebouw';
+import Terreinobject from './Terreinobject';
 import { log } from './log';
 
 const TAAL = 'Nederlands';
@@ -17,4 +18,8 @@ Taal.find({ naam: TAAL }).then(log)
 .then(gewest => Gemeente.find({ gewestId: gewest.id, naam: GEMEENTE })).then(log)
 .then(gemeente => Straat.find({ gemeenteId: gemeente.id, naam: STRAAT })).then(log)
 .then(straat => Huisnummer.find({ straatnaamId: straat.id, nummer: NUMMER })).then(log)
-.then(huisnummer => Gebouw.find({ huisnummerId: huisnummer.id })).then(log);
+.then(huisnummer => {
+  const id = { huisnummerId: huisnummer.id };
+  Gebouw.find(id).then(log);
+  Terreinobject.find(id).then(log);
+});
