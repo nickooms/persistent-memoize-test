@@ -1,5 +1,9 @@
+import initMemoize from 'persistent-memoize';
+import initBlobStore from 'fs-blob-store';
 import { doReq } from './req';
 import Gemeenten from './Gemeenten';
+
+const memoize = initMemoize(initBlobStore({ path: './data' }));
 
 export default class Gemeente {
   static map = x => ({
@@ -14,8 +18,13 @@ export default class Gemeente {
     (!filter.naam || Gemeente.naam(filter.naam)(x)) &&
     (!filter.taalCode || Gemeente.taalCode(filter.taalCode)(x));
   static find = ({ gewestId, naam, taalCode, SorteerVeld = 0 } = {}) =>
-    doReq('ListGemeentenByGewestId', { GewestId: gewestId, SorteerVeld })
+    Gemeente.getListByGewestId(gewestId, SorteerVeld)
+    // doReq('ListGemeentenByGewestId', { GewestId: gewestId, SorteerVeld })
     .then(list => list.map(Gemeente.map))
     .then(Gemeenten.filter(Gemeente.filter({ naam, taalCode })))
     .then(list => list[0]);
 }
+
+const listGemeentenByGewestId = (gewestId, SorteerVeld) =>
+  doReq('ListGemeentenByGewestId', { GewestId: gewestId, SorteerVeld });
+Gemeente.getListByGewestId = memoize(listGemeentenByGewestId, 'listGemeentenByGewestId');

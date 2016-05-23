@@ -3,6 +3,7 @@ import Gewest from './Gewest';
 import Gemeente from './Gemeente';
 import Straat from './Straat';
 import { log } from './log';
+
 const TAAL = 'Nederlands';
 const GEWEST = 'Vlaams Gewest';
 const GEMEENTE = 'Stabroek';
