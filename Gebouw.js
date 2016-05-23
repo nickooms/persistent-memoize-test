@@ -3,6 +3,9 @@ import Gebouwen from './Gebouwen';
 import { memoize } from './util';
 
 export default class Gebouw {
+  constructor(x) {
+    Object.assign(this, x);
+  }
   static map = x => ({
     id: +x.IdentificatorGebouw,
     aard: +x.AardGebouw,
@@ -15,7 +18,7 @@ export default class Gebouw {
     Gebouw.getListByHuisnummerId(huisnummerId, SorteerVeld)
     .then(list => list.map(Gebouw.map))
     .then(Gebouwen.filter(Gebouw.filter({ aard })))
-    .then(list => list[0]);
+    .then(list => new Gebouw(list[0]));
 }
 
 const name = 'ListGebouwenByHuisnummerId';

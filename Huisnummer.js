@@ -3,10 +3,14 @@ import Huisnummers from './Huisnummers';
 import { memoize } from './util';
 
 export default class Huisnummer {
+  constructor(x) {
+    Object.assign(this, x);
+  }
   static map = x => ({
     id: +x.HuisnummerId,
     nummer: x.Huisnummer,
   });
+  static create = huisnummer => new Huisnummer(huisnummer);
   static nummer = nummer => x => nummer == x.nummer;
   static filter = filter => x =>
     (!filter.nummer || Huisnummer.nummer(filter.nummer)(x));
@@ -14,7 +18,7 @@ export default class Huisnummer {
     Huisnummer.getListByStraatnaamId(straatnaamId, SorteerVeld)
     .then(list => list.map(Huisnummer.map))
     .then(Huisnummers.filter(Huisnummer.filter({ nummer })))
-    .then(list => list[0]);
+    .then(list => new Huisnummer(list[0]));
 }
 
 const name = 'ListHuisnummersByStraatnaamId';

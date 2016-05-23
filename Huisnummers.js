@@ -6,5 +6,6 @@ export default class Huisnummers {
   static filter = filter => list => list.filter(filter);
   static list = ({ StraatnaamId = 7338, SorteerVeld = 0 } = {}) =>
     doReq('ListHuisnummersByStraatnaamId', { StraatnaamId, SorteerVeld })
-    .then(Huisnummers.map);
+    .then(Huisnummers.map)
+    .then(huisnummers => huisnummers.map(Huisnummer.create));
 }

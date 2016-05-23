@@ -3,6 +3,9 @@ import Gewesten from './Gewesten';
 import { memoize } from './util';
 
 export default class Gewest {
+  constructor(x) {
+    Object.assign(this, x);
+  }
   static map = x => ({
     id: +x.GewestId,
     naam: x.GewestNaam,
@@ -17,7 +20,7 @@ export default class Gewest {
     Gewest.getList(SorteerVeld)
     .then(list => list.map(Gewest.map))
     .then(Gewesten.filter(Gewest.filter({ taalCode, naam })))
-    .then(list => list[0]);
+    .then(list => new Gewest(list[0]));
 }
 
 const name = 'ListGewesten';

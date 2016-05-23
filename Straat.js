@@ -3,6 +3,9 @@ import Straten from './Straten';
 import { memoize } from './util';
 
 export default class Straat {
+  constructor(x) {
+    Object.assign(this, x);
+  }
   static map = x => ({
     id: +x.StraatnaamId,
     naam: x.Straatnaam,
@@ -17,7 +20,7 @@ export default class Straat {
     Straat.getListByGemeenteId(gemeenteId, SorteerVeld)
     .then(list => list.map(Straat.map))
     .then(Straten.filter(Straat.filter({ naam, taalCode })))
-    .then(list => list[0]);
+    .then(list => new Straat(list[0]));
 }
 
 const name = 'ListStraatnamenByGemeenteId';

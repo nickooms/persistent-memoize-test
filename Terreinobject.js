@@ -3,6 +3,9 @@ import Terreinobjecten from './Terreinobjecten';
 import { memoize } from './util';
 
 export default class Terreinobject {
+  constructor(x) {
+    Object.assign(this, x);
+  }
   static map = x => ({
     id: x.IdentificatorTerreinobject,
     aard: +x.AardTerreinobject,
@@ -14,7 +17,7 @@ export default class Terreinobject {
     Terreinobject.getListByHuisnummerId(huisnummerId, SorteerVeld)
     .then(list => list.map(Terreinobject.map))
     .then(Terreinobjecten.filter(Terreinobject.filter({ aard })))
-    .then(list => list[0]);
+    .then(list => new Terreinobject(list[0]));
 }
 
 const name = 'ListTerreinobjectenByHuisnummerId';

@@ -3,6 +3,9 @@ import Talen from './Talen';
 import { memoize } from './util';
 
 export default class Taal {
+  constructor(x) {
+    Object.assign(this, x);
+  }
   static map = x => ({
     code: x.Code,
     naam: x.Naam,
@@ -19,7 +22,7 @@ export default class Taal {
     Taal.getList(SorteerVeld)
     .then(list => list.map(Taal.map))
     .then(Talen.filter(Taal.filter({ code, naam, definitie })))
-    .then(list => list[0]);
+    .then(list => new Taal(list[0]));
 }
 
 const name = 'ListTalen';
