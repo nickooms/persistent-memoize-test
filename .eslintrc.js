@@ -2,7 +2,7 @@ module.exports = {
   "extends": "airbnb",
   "parser": "babel-eslint",
   "plugins": [
-    "react"
+    /* "react"*/
   ],
   "rules": {
     "no-console": "off"
