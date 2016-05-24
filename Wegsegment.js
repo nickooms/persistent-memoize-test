@@ -24,7 +24,7 @@ export default class Wegsegment {
     .then(Wegsegmenten.filter(Wegsegment.filter({ nummer })))
     .then(list => new Wegsegment(list[0]));
   static get = wegsegment =>
-    doReq('GetWegsegmentByIdentificatorWegsegment', { IdentificatorWegsegment: wegsegment.id })
+    Wegsegment.getById(wegsegment.id)
     .then(list => list.map(Wegsegment.object))
     .then(list => new Wegsegment(list[0]));
 }
@@ -33,3 +33,7 @@ const name = 'ListWegsegmentenByStraatnaamId';
 const list = (straatnaamId, SorteerVeld) =>
   doReq(name, { StraatnaamId: straatnaamId, SorteerVeld });
 Wegsegment.getListByStraatnaamId = memoize(list, name);
+
+const op = 'GetWegsegmentByIdentificatorWegsegment';
+const lst = id => doReq(op, { IdentificatorWegsegment: id });
+Wegsegment.getById = memoize(lst, op);

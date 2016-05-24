@@ -8,7 +8,12 @@ const lineString = x => x
 .replace(')', '')
 .split(', ')
 .map(p => point(p.split(' ')[0], p.split(' ')[1]));
+const polygon = x => x
+.replace('POLYGON ((', '')
+.replace('))', '')
+.split(', ')
+.map(p => point(p.split(' ')[0], p.split(' ')[1]));
 const memoize = initMemoize(initBlobStore({ path: './data' }));
 const returning = f => x => (f(x) && undefined) || x;
 
-export { memoize, returning, point, lineString };
+export { memoize, returning, point, lineString, polygon };

@@ -1,6 +1,6 @@
 import { doReq } from './req';
 import Terreinobjecten from './Terreinobjecten';
-import { memoize } from './util';
+import { memoize, point } from './util';
 
 export default class Terreinobject {
   constructor(x) {
@@ -10,6 +10,11 @@ export default class Terreinobject {
     id: x.IdentificatorTerreinobject,
     aard: +x.AardTerreinobject,
   });
+  static object = x => Object.assign(Terreinobject.map(x), {
+    center: point(x.CenterX, x.CenterY),
+    minimum: point(x.MinimumX, x.MinimumY),
+    maximum: point(x.MaximumX, x.MaximumY),
+  });
   static aard = aard => x => aard === x.aard;
   static filter = filter => x =>
     (!filter.nummer || Terreinobject.aard(filter.aard)(x));
@@ -18,9 +23,17 @@ export default class Terreinobject {
     .then(list => list.map(Terreinobject.map))
     .then(Terreinobjecten.filter(Terreinobject.filter({ aard })))
     .then(list => new Terreinobject(list[0]));
+  static get = terreinobject =>
+    Terreinobject.getById(terreinobject.id)
+    .then(list => list.map(Terreinobject.object))
+    .then(list => new Terreinobject(list[0]));
 }
 
 const name = 'ListTerreinobjectenByHuisnummerId';
 const list = (huisnummerId, SorteerVeld) =>
   doReq(name, { HuisnummerId: huisnummerId, SorteerVeld });
 Terreinobject.getListByHuisnummerId = memoize(list, name);
+
+const op = 'GetTerreinobjectByIdentificatorTerreinobject';
+const lst = id => doReq(op, { IdentificatorTerreinobject: id });
+Terreinobject.getById = memoize(lst, op);
