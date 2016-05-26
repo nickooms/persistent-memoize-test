@@ -21,12 +21,13 @@ const STRAAT = 'Markt';
 const objects = { gebouwen: [], terreinen: [], wegobjecten: [], wegsegmenten: [], percelen: [] };
 
 const createSVG = () => {
+  const { gebouwen, percelen, terreinen, wegobjecten, wegsegmenten } = objects;
   const coords = [];
-  objects.gebouwen.forEach(x => coords.push(...x));
-  objects.wegsegmenten.forEach(x => coords.push(...x));
-  coords.push(...objects.terreinen);
-  coords.push(...objects.wegobjecten);
-  coords.push(...objects.percelen);
+  gebouwen.forEach(x => coords.push(...x));
+  wegsegmenten.forEach(x => coords.push(...x));
+  coords.push(...terreinen);
+  coords.push(...wegobjecten);
+  coords.push(...percelen);
   const list = coords.filter(coord => coord);
   const x = list.map(coord => coord[0]);
   const y = list.map(coord => coord[1]);
@@ -41,11 +42,11 @@ const createSVG = () => {
   const viewPort = `viewPort="0 0 ${W} ${H}"`;
   const ns = 'xmlns="http://www.w3.org/2000/svg"';
   const svg = `<svg ${width} ${height} ${viewPort} version="1.1" ${ns}>
-${objects.gebouwen.filter(coord => coord).map(polygon(min, 'black', 1)).join('\n')}
-${objects.wegsegmenten.filter(coord => coord).map(polyline(min, 'black', 1)).join('\n')}
-${objects.wegobjecten.filter(coord => coord).map(circle(min, 'blue', 3)).join('\n')}
-${objects.terreinen.filter(coord => coord).map(circle(min, 'green', 3)).join('\n')}
-${objects.percelen.filter(coord => coord).map(circle(min, 'yellow', 3, 'yellow')).join('\n')}
+${gebouwen.filter(coord => coord).map(polygon(min, 'black', 1)).join('\n')}
+${wegsegmenten.filter(coord => coord).map(polyline(min, 'gray', 1)).join('\n')}
+${wegobjecten.filter(coord => coord).map(circle(min, 'blue', 3, 'blue')).join('\n')}
+${terreinen.filter(coord => coord).map(circle(min, 'green', 3, 'green')).join('\n')}
+${percelen.filter(coord => coord).map(circle(min, 'purple', 3, 'purple')).join('\n')}
 </svg>`;
   fs.writeFileSync('test2.svg', svg);
   log('SVG generated');
