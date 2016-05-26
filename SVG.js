@@ -37,7 +37,7 @@ const circle = (min, strokeColor = 'black', strokeWidth = 3, fill = 'red') => p 
   return element('circle', [
     `cx="${x}"`,
     `cy="${y}"`,
-    'r="1"',
+    `r="${Math.max(1, strokeWidth)}"`,
     `stroke="${strokeColor}"`,
     `stroke-width="${strokeWidth}"`,
     `fill="${fill}"`,

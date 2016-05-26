@@ -18,14 +18,38 @@ const TAAL = 'Nederlands';
 const GEWEST = 'Vlaams Gewest';
 const GEMEENTE = 'Stabroek';
 const STRAAT = 'Markt';
-const coords = [];
 const objects = { gebouwen: [], terreinen: [], wegobjecten: [], wegsegmenten: [], percelen: [] };
 
-/* class CMM {
-  center;
-  minimum;
-  maximum;
-}*/
+const createSVG = () => {
+  const coords = [];
+  objects.gebouwen.forEach(x => coords.push(...x));
+  objects.wegsegmenten.forEach(x => coords.push(...x));
+  coords.push(...objects.terreinen);
+  coords.push(...objects.wegobjecten);
+  coords.push(...objects.percelen);
+  const list = coords.filter(coord => coord);
+  const x = list.map(coord => coord[0]);
+  const y = list.map(coord => coord[1]);
+  const min = { x: Math.min(...x), y: Math.min(...y) };
+  const max = { x: Math.max(...x), y: Math.max(...y) };
+  const w = Math.ceil(max.x - min.x);
+  const h = Math.ceil(max.y - min.y);
+  const W = w * Scale;
+  const H = h * Scale;
+  const width = `width="${W}"`;
+  const height = `height="${H}"`;
+  const viewPort = `viewPort="0 0 ${W} ${H}"`;
+  const ns = 'xmlns="http://www.w3.org/2000/svg"';
+  const svg = `<svg ${width} ${height} ${viewPort} version="1.1" ${ns}>
+${objects.gebouwen.filter(coord => coord).map(polygon(min, 'black', 1)).join('\n')}
+${objects.wegsegmenten.filter(coord => coord).map(polyline(min, 'black', 1)).join('\n')}
+${objects.wegobjecten.filter(coord => coord).map(circle(min, 'blue', 3)).join('\n')}
+${objects.terreinen.filter(coord => coord).map(circle(min, 'green', 3)).join('\n')}
+${objects.percelen.filter(coord => coord).map(circle(min, 'yellow', 3, 'yellow')).join('\n')}
+</svg>`;
+  fs.writeFileSync('test2.svg', svg);
+  log('SVG generated');
+};
 
 const Parse = {
   Gebouw: x => Gebouw.get(x).then(gebouw => {
@@ -39,8 +63,8 @@ const Parse = {
     objects.percelen.push(perceel.center);
   }),
 
-  Huisnummer: huisnummer => {
-    const id = { huisnummerId: huisnummer.id };
+  Huisnummer: x => {
+    const id = { huisnummerId: x.id };
     return Promise.all([
       Gebouw.find(id).then(Parse.Gebouw),
       Terreinobject.find(id).then(Parse.Terreinobject),
@@ -66,35 +90,7 @@ const Parse = {
       Huisnummers.list(id).then(Parse.Huisnummers),
       Wegobjecten.list(id).then(Parse.Wegobjecten),
       Wegsegmenten.list(id).then(Parse.Wegsegmenten),
-    ]).then(() => {
-      objects.gebouwen.forEach(x => coords.push(...x));
-      objects.wegsegmenten.forEach(x => coords.push(...x));
-      coords.push(...objects.terreinen);
-      coords.push(...objects.wegobjecten);
-      coords.push(...objects.percelen);
-      const list = coords.filter(coord => coord);
-      const x = list.map(coord => coord[0]);
-      const y = list.map(coord => coord[1]);
-      const min = { x: Math.min(...x), y: Math.min(...y) };
-      const max = { x: Math.max(...x), y: Math.max(...y) };
-      const w = Math.ceil(max.x - min.x);
-      const h = Math.ceil(max.y - min.y);
-      const W = w * Scale;
-      const H = h * Scale;
-      const width = `width="${W}"`;
-      const height = `height="${H}"`;
-      const viewPort = `viewPort="0 0 ${W} ${H}"`;
-      const ns = 'xmlns="http://www.w3.org/2000/svg"';
-      const svg = `<svg ${width} ${height} ${viewPort} version="1.1" ${ns}>
-${''/* objects.gebouwen.filter(coord => coord).map(polygon(min, 'black', 1)).join('\n')*/}
-${''/* objects.wegsegmenten.filter(coord => coord).map(polyline(min, 'black', 1)).join('\n')*/}
-${''/* objects.wegobjecten.filter(coord => coord).map(circle(min, 'blue', 3)).join('\n')*/}
-${''/* objects.terreinen.filter(coord => coord).map(circle(min, 'green', 3)).join('\n')*/}
-${objects.percelen.filter(coord => coord).map(circle(min, 'black', 10, 'yellow')).join('\n')}
-</svg>`;
-      fs.writeFileSync('test2.svg', svg);
-      log('SVG generated');
-    }).catch(e => log(e));
+    ]).then(createSVG).catch(e => log(e));
   },
 };
 
