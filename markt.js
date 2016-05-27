@@ -45,7 +45,7 @@ const createSVG = ({ gebouwen, percelen, terreinen, wegobjecten, wegsegmenten })
   const ns = 'xmlns="http://www.w3.org/2000/svg"';
   const xlink = 'xmlns:xlink="http://www.w3.org/1999/xlink"';
 
-  const terreinToRect = terrein => rect(min, max, 'green', 'black')(terrein);
+  const terreinToRect = terrein => rect(min, max, 'green', 'black', 0)(terrein);
 
   const terreinToImage = terrein => {
     const [[left, top], [right, bottom]] = [terrein.minimum, terrein.maximum];
@@ -63,7 +63,7 @@ ${gebouwen.filter(notNull).map(polygon(min, max, 'black', 1)).join('\n')}
 ${wegsegmenten.filter(notNull).map(polyline(min, max, 'gray', 1)).join('\n')}
 ${wegobjecten.filter(notNull).map(rect(min, max)).join('\n')}
 
-${terreinen.filter(notNull).map(functionsWithObject([terreinToRect, terreinToImage])).join('\n\n')}
+${terreinen.filter(notNull).map(functionsWithObject([terreinToImage, terreinToRect])).join('\n\n')}
 
 ${wegobjecten.filter(notNull).map(o => o.center).map(circle(min, max, 'red', 10, 'red', 10)).join('\n')}
 ${terreinen.filter(notNull).map(o => o.center).map(circle(min, max, 'green', 5, 'green', 5)).join('\n')}

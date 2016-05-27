@@ -81,7 +81,6 @@ const rect = (
     `width="${w}"`,
     `height="${h}"`,
     `style="${style}"`,
-    // `title="${box.minimum.join(',')},${box.maximum.join(',')}"`,
   ]);
 };
 
