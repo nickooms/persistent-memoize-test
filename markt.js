@@ -20,7 +20,6 @@ const notNull = x => x;
 const functionsWithObject = functions => object => functions.map(fn => fn(object)).join('\n');
 
 const createSVG = ({ gebouwen, percelen, terreinen, wegobjecten, wegsegmenten }) => {
-  // console.log(terreinen);
   const coords = [];
   gebouwen.forEach(x => coords.push(...x));
   wegsegmenten.forEach(x => coords.push(...x));
@@ -45,7 +44,7 @@ const createSVG = ({ gebouwen, percelen, terreinen, wegobjecten, wegsegmenten })
   const ns = 'xmlns="http://www.w3.org/2000/svg"';
   const xlink = 'xmlns:xlink="http://www.w3.org/1999/xlink"';
 
-  const terreinToRect = terrein => rect(min, max, 'green', 'black', 0)(terrein);
+  const terreinToRect = terrein => rect({ min, max, class: 'rectClass' })(terrein);
 
   const terreinToImage = terrein => {
     const [[left, top], [right, bottom]] = [terrein.minimum, terrein.maximum];
@@ -58,20 +57,47 @@ const createSVG = ({ gebouwen, percelen, terreinen, wegobjecten, wegsegmenten })
     return image(url, min, max)(terrein);
   };
 
+  const center = o => o.center;
+
   const svg = `<svg ${width} ${height} ${viewPort} version="1.1" ${ns} ${xlink}>
+  <style type="text/css">
+    <![CDATA[
+      rect.rectClass {
+        stroke:         black;
+        fill:           green;
+        stroke-width:   2;
+        fill-opacity:   0.2;
+        stroke-opacity: 0.8;
+      }
+      circle.wegobject {
+        stroke: red;
+        fill:   red;
+        stroke-width: 10;
+      }
+      circle.terrein {
+        stroke: green;
+        fill:   green;
+        stroke-width: 5;
+      }
+      circle.perceel {
+        stroke: purple;
+        fill:   purple;
+        stroke-width: 3;
+      }
+    ]]>
+  </style>
 ${gebouwen.filter(notNull).map(polygon(min, max, 'black', 1)).join('\n')}
 ${wegsegmenten.filter(notNull).map(polyline(min, max, 'gray', 1)).join('\n')}
-${wegobjecten.filter(notNull).map(rect(min, max)).join('\n')}
+${wegobjecten.filter(notNull).map(rect({ min, max })).join('\n')}
 
-${terreinen.filter(notNull).map(functionsWithObject([terreinToImage, terreinToRect])).join('\n\n')}
+${terreinen.filter(notNull).map(functionsWithObject([/* terreinToImage, */terreinToRect])).join('\n\n')}
 
-${wegobjecten.filter(notNull).map(o => o.center).map(circle(min, max, 'red', 10, 'red', 10)).join('\n')}
-${terreinen.filter(notNull).map(o => o.center).map(circle(min, max, 'green', 5, 'green', 5)).join('\n')}
-${percelen.filter(notNull).map(circle(min, max, 'purple', 3, 'purple')).join('\n')}
+${wegobjecten.filter(notNull).map(center).map(circle({ min, max, class: 'wegobject' })).join('\n')}
+${terreinen.filter(notNull).map(center).map(circle({ min, max, class: 'terrein' })).join('\n')}
+${percelen.filter(notNull).map(circle({ min, max, class: 'perceel' })).join('\n')}
 </svg>`;
   fs.writeFileSync('test2.svg', svg);
   log('SVG generated');
-  // log(WMS.getMap(500, 500, 'EPSG:31370', WMS.bbox([min.x, min.y, max.x, max.y])));
 };
 
 const getStraat = gemeente => Gemeente.get(gemeente)
