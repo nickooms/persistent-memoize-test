@@ -1,54 +1,37 @@
-import Huisnummers from './Huisnummers';
-import Wegobject from './Wegobject';
-import Wegobjecten from './Wegobjecten';
-import Wegsegment from './Wegsegment';
-import Wegsegmenten from './Wegsegmenten';
-import Gebouw from './Gebouw';
-import Perceel from './Perceel';
-import Terreinobject from './Terreinobject';
-import { log } from './log';
+import { Huisnummers, Wegobjecten, Wegobject, Wegsegmenten, Wegsegment, Gebouwen, Gebouw,
+  Percelen, Perceel, Terreinobjecten, Terreinobject } from './CRAB';
+import { log, error
+ } from './log';
 
-const objects = {
-  gebouwen: [],
-  terreinen: [],
-  wegobjecten: [],
-  wegsegmenten: [],
-  percelen: [],
-};
+const objects = { gebouwen: [], terreinen: [], wegobjecten: [], wegsegmenten: [], percelen: [] };
 
 const Resolve = {
-  Gebouw: x => Gebouw.get(x).then(gebouw => {
-    if (gebouw.polygon) objects.gebouwen.push(gebouw.polygon);
-  }),
+  getList: id => x => x.list(id).then(Resolve[x.name]).catch(error),
 
-  Terreinobject: x => Terreinobject.get(x).then(({ center, minimum, maximum }) => {
-    if (center && minimum && maximum) objects.terreinen.push({ center, minimum, maximum });
-  }),
+  Gebouw: x => Gebouw.get(x)
+  .then(({ polygon }) => objects.gebouwen.push(polygon)),
 
-  Perceel: x => Perceel.get(x).then(perceel => {
-    objects.percelen.push(perceel.center);
-  }),
+  Terreinobject: x => Terreinobject.get(x)
+  .then(({ center, minimum, maximum }) => objects.terreinen.push({ center, minimum, maximum })),
 
-  Huisnummer: x => {
-    const id = { huisnummerId: x.id };
-    return Promise.all([
-      Gebouw.find(id).then(Resolve.Gebouw),
-      Terreinobject.find(id).then(Resolve.Terreinobject),
-      Perceel.find(id).then(Resolve.Perceel),
-    ]);
-  },
+  Perceel: x => Perceel.get(x)
+  .then(({ center }) => objects.percelen.push(center)),
 
-  Wegobject: x => Wegobject.get(x).then(({ center, minimum, maximum }) =>
-    objects.wegobjecten.push({ center, minimum, maximum })),
+  Huisnummer: x => Promise.all([Gebouwen, Terreinobjecten, Percelen]
+    .map(Resolve.getList({ huisnummerId: x.id }))),
+
+  Gebouwen: x => Promise.all(x.map(Resolve.Gebouw)),
+  Terreinobjecten: x => Promise.all(x.map(Resolve.Terreinobject)),
+  Percelen: x => Promise.all(x.map(Resolve.Perceel)),
+  Huisnummers: x => Promise.all(x.map(Resolve.Huisnummer)),
+  Wegobjecten: x => Promise.all(x.map(Resolve.Wegobject)),
+  Wegsegmenten: x => Promise.all(x.map(Resolve.Wegsegment)),
+
+  Wegobject: x => Wegobject.get(x)
+  .then(({ center, minimum, maximum }) => objects.wegobjecten.push({ center, minimum, maximum })),
 
   Wegsegment: x => Wegsegment.get(x)
-    .then(wegsegment => objects.wegsegmenten.push(wegsegment.lineString)),
-
-  Huisnummers: x => Promise.all(x.map(Resolve.Huisnummer)),
-
-  Wegobjecten: x => Promise.all(x.map(Resolve.Wegobject)),
-
-  Wegsegmenten: x => Promise.all(x.map(Resolve.Wegsegment)),
+  .then(({ lineString }) => objects.wegsegmenten.push(lineString)),
 
   Straat: fn => straat => {
     const id = { straatnaamId: straat.id };
@@ -56,7 +39,9 @@ const Resolve = {
       Huisnummers.list(id).then(Resolve.Huisnummers),
       Wegobjecten.list(id).then(Resolve.Wegobjecten),
       Wegsegmenten.list(id).then(Resolve.Wegsegmenten),
-    ]).then(() => fn(objects)).catch(e => log(e));
+    ])
+    .then(() => fn(objects))
+    .catch(e => log(e));
   },
 };
 

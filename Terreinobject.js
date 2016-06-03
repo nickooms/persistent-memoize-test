@@ -19,21 +19,15 @@ export default class Terreinobject {
   static filter = filter => x =>
     (!filter.nummer || Terreinobject.aard(filter.aard)(x));
   static find = ({ huisnummerId, aard, SorteerVeld = 0 } = {}) =>
-    Terreinobject.getListByHuisnummerId(huisnummerId, SorteerVeld)
+    Terreinobject.byHuisnummerId(huisnummerId, SorteerVeld)
     .then(list => list.map(Terreinobject.map))
     .then(Terreinobjecten.filter(Terreinobject.filter({ aard })))
     .then(list => new Terreinobject(list[0]));
-  static get = terreinobject =>
-    Terreinobject.getById(terreinobject.id)
+  static get = terreinobject => Terreinobject.byId(terreinobject.id)
     .then(list => list.map(Terreinobject.object))
     .then(list => new Terreinobject(list[0]));
+  static byId = memoize(id => name =>
+    doReq(name, { IdentificatorTerreinobject: id }), 'GetTerreinobjectByIdentificatorTerreinobject');
+  static byHuisnummerId = memoize((huisnummerId, SorteerVeld) => name =>
+    doReq(name, { HuisnummerId: huisnummerId, SorteerVeld }), 'ListTerreinobjectenByHuisnummerId');
 }
-
-const name = 'ListTerreinobjectenByHuisnummerId';
-const list = (huisnummerId, SorteerVeld) =>
-  doReq(name, { HuisnummerId: huisnummerId, SorteerVeld });
-Terreinobject.getListByHuisnummerId = memoize(list, name);
-
-const op = 'GetTerreinobjectByIdentificatorTerreinobject';
-const lst = id => doReq(op, { IdentificatorTerreinobject: id });
-Terreinobject.getById = memoize(lst, op);

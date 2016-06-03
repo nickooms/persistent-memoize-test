@@ -19,21 +19,15 @@ export default class Gebouw {
   static filter = filter => x =>
     (!filter.nummer || Gebouw.aard(filter.aard)(x));
   static find = ({ huisnummerId, aard, SorteerVeld = 0 } = {}) =>
-    Gebouw.getListByHuisnummerId(huisnummerId, SorteerVeld)
+    Gebouw.byHuisnummerId(huisnummerId, SorteerVeld)
     .then(list => list.map(Gebouw.map))
     .then(Gebouwen.filter(Gebouw.filter({ aard })))
     .then(list => new Gebouw(list[0]));
-  static get = gebouw =>
-    Gebouw.getById(gebouw.id)
+  static get = gebouw => Gebouw.byId(gebouw.id)
     .then(list => list.map(Gebouw.object))
     .then(list => new Gebouw(list[0]));
+  static byHuisnummerId = memoize((huisnummerId, SorteerVeld) => name =>
+    doReq(name, { HuisnummerId: huisnummerId, SorteerVeld }), 'ListGebouwenByHuisnummerId');
+  static byId = memoize(id => name =>
+    doReq(name, { IdentificatorGebouw: id }), 'GetGebouwByIdentificatorGebouw');
 }
-
-const name = 'ListGebouwenByHuisnummerId';
-const list = (huisnummerId, SorteerVeld) =>
-  doReq(name, { HuisnummerId: huisnummerId, SorteerVeld });
-Gebouw.getListByHuisnummerId = memoize(list, name);
-
-const op = 'GetGebouwByIdentificatorGebouw';
-const lst = id => doReq(op, { IdentificatorGebouw: id });
-Gebouw.getById = memoize(lst, op);

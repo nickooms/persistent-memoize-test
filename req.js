@@ -14,6 +14,7 @@ const req = (operation, parameters) => {
 
 const doReq = (operation, parameters) => new Promise((resolve, reject) => {
   request(req(operation, parameters), (error, response, body) => {
+    if (error) console.log(error);
     if (error) reject(new Error('request failed:', error));
     resolve(parse(body));
   });
